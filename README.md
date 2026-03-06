@@ -18,6 +18,8 @@ Install from GitHub:
 npm install -D github:qualiatokyoltd/vue-grab
 ```
 
+`prepare` runs automatically for GitHub installs, so `dist/` is built during installation.
+
 ## 30-Second Setup (Recommended)
 
 Add this to your app entry (`main.ts` / `main.js`):

@@ -18,6 +18,8 @@ GitHub から直接インストールしてください。
 npm install -D github:qualiatokyoltd/vue-grab
 ```
 
+GitHub からのインストール時は `prepare` が自動実行されるため、`dist/` はインストール時にビルドされます。
+
 ## 30秒導入（推奨）
 
 エントリーファイル（`main.ts` / `main.js`）に追加するだけです。
