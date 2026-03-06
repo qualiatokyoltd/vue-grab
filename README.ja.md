@@ -4,6 +4,8 @@ Vueアプリ上で要素を指して、AIに渡すコンポーネント文脈を
 
 クリックした要素から Vue のコンポーネントツリー・ファイルパス・Props・テキスト情報を抽出し、ChatGPT / Claude / Copilot に貼れる形式でコピーします。
 
+Inspired by [react-grab](https://github.com/aidenybai/react-grab). Thank you ♡
+
 - 日本語: このファイル
 - English: [README.md](./README.md)
 
