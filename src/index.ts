@@ -8,20 +8,62 @@
  */
 
 import type { App, Plugin } from 'vue'
-import { activate, deactivate, toggle, isGrabActive, setupShortcut, formatPrompt, walkComponentTree } from './core'
-import type { GrabOptions, GrabResult, ComponentInfo } from './core'
+import {
+  activate,
+  deactivate,
+  toggle,
+  isGrabActive,
+  setupShortcut,
+  formatPrompt,
+  walkComponentTree,
+  getDefaultShortcut,
+  getLocaleMessages,
+  formatShortcutLabel,
+  registerPlugin,
+  unregisterPlugin,
+  clearPlugins,
+} from './core'
+import type {
+  GrabOptions,
+  GrabResult,
+  ComponentInfo,
+  GrabPlugin,
+  GrabAction,
+  GrabActionContext,
+  GrabLocale,
+  GrabLocaleOption,
+} from './core'
 
-export type { GrabOptions, GrabResult, ComponentInfo }
-export { activate, deactivate, toggle, isGrabActive, formatPrompt, walkComponentTree }
+export type {
+  GrabOptions,
+  GrabResult,
+  ComponentInfo,
+  GrabPlugin,
+  GrabAction,
+  GrabActionContext,
+  GrabLocale,
+  GrabLocaleOption,
+}
+export {
+  activate,
+  deactivate,
+  toggle,
+  isGrabActive,
+  formatPrompt,
+  walkComponentTree,
+  getDefaultShortcut,
+  getLocaleMessages,
+  formatShortcutLabel,
+  registerPlugin,
+  unregisterPlugin,
+  clearPlugins,
+}
 
 export const VueGrab: Plugin = {
   install(_app: App, options: GrabOptions = {}) {
-    // Only install in development mode
-    if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production') {
-      return
-    }
-
-    const shortcut = options.shortcut ?? 'Alt+Shift+G'
+    const shortcut = options.shortcut ?? getDefaultShortcut()
+    const i18n = getLocaleMessages(options.locale ?? 'auto')
+    const shortcutLabel = formatShortcutLabel(shortcut)
 
     // Register keyboard shortcut
     const cleanup = setupShortcut(shortcut, options)
@@ -44,7 +86,7 @@ export const VueGrab: Plugin = {
 
     // Log install message
     console.log(
-      `%c vue-grab %c Press ${shortcut} to grab components `,
+      `%c vue-grab %c ${i18n.install_log.replace('{shortcut}', shortcutLabel)} `,
       'background: #42b883; color: white; border-radius: 4px 0 0 4px; padding: 2px 6px;',
       'background: #35495e; color: #42b883; border-radius: 0 4px 4px 0; padding: 2px 6px;',
     )

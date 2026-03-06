@@ -11,8 +11,8 @@
  *   })
  */
 
-import { ref, onUnmounted, inject } from 'vue'
-import { activate, deactivate, toggle, isGrabActive, setupShortcut } from './core'
+import { ref, onUnmounted } from 'vue'
+import { activate, deactivate, toggle, isGrabActive, setupShortcut, getDefaultShortcut } from './core'
 import type { GrabOptions, GrabResult } from './core'
 
 export interface UseVueGrabReturn {
@@ -32,9 +32,6 @@ export function useVueGrab(options: GrabOptions = {}): UseVueGrabReturn {
   const isActiveRef = ref(isGrabActive())
   const lastResult = ref<GrabResult | null>(null)
 
-  // Try to get plugin-injected functions
-  const injected = inject<any>('vue-grab', null)
-
   const wrappedOptions: GrabOptions = {
     ...options,
     onGrab(result) {
@@ -44,7 +41,7 @@ export function useVueGrab(options: GrabOptions = {}): UseVueGrabReturn {
     },
   }
 
-  const shortcut = options.shortcut ?? 'Alt+Shift+G'
+  const shortcut = options.shortcut ?? getDefaultShortcut()
   const cleanupShortcut = setupShortcut(shortcut, wrappedOptions)
 
   onUnmounted(() => {

@@ -225,7 +225,40 @@
 
   <script type="module">
     import { createApp, ref, defineComponent, h } from 'vue'
-    import { VueGrab, activate, deactivate, toggle, isGrabActive, walkComponentTree, formatPrompt } from './src/index.ts'
+    import { VueGrab, activate, getDefaultShortcut, formatShortcutLabel, registerPlugin } from './src/index.ts'
+
+    const locale = navigator.language.toLowerCase().startsWith('ja') ? 'ja' : 'en'
+    const text = locale === 'ja'
+      ? {
+          heroDesc: 'Vue アプリの要素をクリックしてコンポーネント情報を取得し、AI へ渡せます',
+          tryNow: '試してみる',
+          sampleComponents: 'サンプルコンポーネント',
+          features: '機能',
+          grabOutput: '取得結果',
+          keyboardFeature: (s) => `${s} で grab モードを切り替え。オプションで変更可能。`,
+          outputHint: (s) => `「Grab a Component」を押すか ${s} を押して、要素をクリックしてください...`,
+          grabbedLog: '取得できました',
+          copyAsJson: 'JSONでコピー',
+          countComponents: 'コンポーネント数',
+          componentCount: (n) => `コンポーネント数: ${n}`,
+          grabButton: 'コンポーネントを取得',
+          builtWith: 'Built with',
+        }
+      : {
+          heroDesc: 'Click any element in your Vue app → get component info → ask AI to change it',
+          tryNow: 'Try It Now',
+          sampleComponents: 'Sample Components',
+          features: 'Features',
+          grabOutput: 'Grab Output',
+          keyboardFeature: (s) => `Toggle grab mode with ${s}. Customizable via plugin options.`,
+          outputHint: (s) => `Click "Grab a Component" or press ${s}, then click any element...`,
+          grabbedLog: 'Grabbed!',
+          copyAsJson: 'Copy as JSON',
+          countComponents: 'Count Components',
+          componentCount: (n) => `Component count: ${n}`,
+          grabButton: 'Grab a Component',
+          builtWith: 'Built with',
+        }
 
     // ── Child Components ──
 
@@ -278,7 +311,7 @@
       emits: ['grab'],
       setup(_, { emit }) {
         return () => h('div', { class: 'action-bar' }, [
-          h('button', { class: 'primary', onClick: () => emit('grab') }, 'Grab a Component'),
+          h('button', { class: 'primary', onClick: () => emit('grab') }, text.grabButton),
           h('button', null, 'Settings'),
           h('button', null, 'Export'),
           h('button', null, 'Share'),
@@ -291,10 +324,13 @@
     const App = defineComponent({
       name: 'App',
       setup() {
-        const outputText = ref('Click "Grab a Component" or press Alt+Shift+G, then click any element...')
+        const defaultShortcut = getDefaultShortcut()
+        const shortcutLabel = formatShortcutLabel(defaultShortcut)
+        const outputText = ref(text.outputHint(shortcutLabel))
 
         const handleGrab = () => {
           activate({
+            editPrompt: true,
             onGrab(result) {
               outputText.value = result.prompt
             },
@@ -308,16 +344,16 @@
               h('span', 'vue'),
               '-grab',
             ]),
-            h('p', 'Click any element in your Vue app → get component info → ask AI to change it'),
-            h('div', { class: 'shortcut-badge' }, 'Alt + Shift + G'),
+            h('p', text.heroDesc),
+            h('div', { class: 'shortcut-badge' }, shortcutLabel),
             h('br'),
-            h('button', { class: 'grab-btn', onClick: handleGrab }, 'Try It Now'),
+            h('button', { class: 'grab-btn', onClick: handleGrab }, text.tryNow),
           ]),
 
           // Content
           h('div', { class: 'content' }, [
             // User profile
-            h('h2', { class: 'section-title' }, 'Sample Components'),
+            h('h2', { class: 'section-title' }, text.sampleComponents),
             h(UserProfile, { name: 'Vue Developer', role: 'Frontend Engineer @ vue-grab' }),
 
             // Stats
@@ -331,7 +367,7 @@
             h(ActionBar, { onGrab: handleGrab }),
 
             // Feature cards
-            h('h2', { class: 'section-title' }, 'Features'),
+            h('h2', { class: 'section-title' }, text.features),
             h('div', { class: 'card-grid' }, [
               h(FeatureCard, {
                 title: 'Component Detection',
@@ -351,7 +387,7 @@
               }),
               h(FeatureCard, {
                 title: 'Keyboard Shortcut',
-                description: 'Toggle grab mode with Alt+Shift+G. Customizable via plugin options.',
+                description: text.keyboardFeature(shortcutLabel),
               }),
               h(FeatureCard, {
                 title: 'Zero Config',
@@ -361,14 +397,14 @@
 
             // Output
             h('div', { class: 'output-section' }, [
-              h('h3', 'Grab Output'),
+              h('h3', text.grabOutput),
               h('pre', outputText.value),
             ]),
           ]),
 
           // Footer
           h('div', { class: 'footer' }, [
-            'Built with ',
+            `${text.builtWith} `,
             h('a', { href: '#' }, 'Vue 3'),
             ' + ',
             h('a', { href: '#' }, 'vue-grab'),
@@ -378,9 +414,38 @@
     })
 
     const app = createApp(App)
+    registerPlugin({
+      name: 'demo-copy-json',
+      actions: [
+        {
+          id: 'copy-json',
+          label: text.copyAsJson,
+          placement: 'context-menu',
+          run: async ({ element, components }) => {
+            if (!element) return
+            const payload = JSON.stringify({
+              element: element.tagName.toLowerCase(),
+              classes: element.className,
+              components,
+            }, null, 2)
+            await navigator.clipboard.writeText(payload)
+          },
+        },
+        {
+          id: 'count-components',
+          label: text.countComponents,
+          placement: 'toolbar',
+          run: ({ components }) => {
+            alert(text.componentCount(components.length))
+          },
+        },
+      ],
+    })
     app.use(VueGrab, {
+      editPrompt: true,
+      locale,
       onGrab(result) {
-        console.log('Grabbed!', result)
+        console.log(text.grabbedLog, result)
       },
     })
     app.mount('#app')

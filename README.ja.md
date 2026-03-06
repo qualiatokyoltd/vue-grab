@@ -1,21 +1,21 @@
 # vue-grab
 
-Select context for coding agents directly from your Vue app.
+Vueアプリ上で要素を指して、AIに渡すコンポーネント文脈をその場で取得できます。
 
-Point at any element and grab its Vue component context (component tree, file path, props, HTML text) for ChatGPT / Claude / Copilot.
+クリックした要素から Vue のコンポーネントツリー・ファイルパス・Props・テキスト情報を抽出し、ChatGPT / Claude / Copilot に貼れる形式でコピーします。
 
-- English: this file
-- Japanese: [README.ja.md](./README.ja.md)
+- 日本語: このファイル
+- English: [README.md](./README.md)
 
-## Install
+## インストール
 
 ```bash
 npm install vue-grab
 ```
 
-## 30-Second Setup (Recommended)
+## 30秒導入（推奨）
 
-Add this to your app entry (`main.ts` / `main.js`):
+エントリーファイル（`main.ts` / `main.js`）に追加するだけです。
 
 ```ts
 import { createApp } from 'vue'
@@ -34,20 +34,20 @@ if (import.meta.env.DEV) {
 app.mount('#app')
 ```
 
-## Usage
+## 使い方
 
-Once installed, hover any element and press:
+導入後、要素にホバーした状態で:
 
-- `⌘⇧G` (macOS) or `Alt+Shift+G` (Windows/Linux) to toggle grab mode
-- `⌘C` / `Ctrl+C` (or click) to finalize selection
+- `⌘⇧G`（macOS）または `Alt+Shift+G`（Windows/Linux）で grab モード切替
+- `⌘C` / `Ctrl+C`（またはクリック）で確定
 
-`vue-grab` copies an AI-ready prompt to your clipboard (and opens a prompt editor by default).
+確定すると、AI向けプロンプトがクリップボードにコピーされます（デフォルトで編集モーダルも表示）。
 
-## Manual Installation
+## 手動導入
 
 ### Vite
 
-If you prefer dynamic loading in development:
+開発時だけ動的に読み込みたい場合:
 
 ```html
 <script type="module">
@@ -59,7 +59,7 @@ If you prefer dynamic loading in development:
 
 ### Nuxt 3
 
-Use a client plugin (`plugins/vue-grab.client.ts`):
+クライアントプラグイン（`plugins/vue-grab.client.ts`）で登録:
 
 ```ts
 import { defineNuxtPlugin } from '#app'
@@ -72,9 +72,9 @@ export default defineNuxtPlugin((nuxtApp) => {
 })
 ```
 
-## Plugin Extensions
+## プラグイン拡張
 
-`vue-grab` supports plugin-style extensions for toolbar and context-menu actions.
+`registerPlugin` でツールバー / コンテキストメニューを拡張できます。
 
 ```ts
 import { registerPlugin } from 'vue-grab'
@@ -84,7 +84,7 @@ registerPlugin({
   actions: [
     {
       id: 'copy-json',
-      label: 'Copy as JSON',
+      label: 'JSONでコピー',
       placement: 'context-menu',
       async run({ element, components }) {
         if (!element) return
@@ -97,12 +97,12 @@ registerPlugin({
 })
 ```
 
-## Options
+## オプション
 
-| Option | Type | Default |
+| オプション | 型 | デフォルト |
 |---|---|---|
 | `locale` | `'en' \| 'ja' \| 'auto'` | `'auto'` |
-| `shortcut` | `string` | macOS: `⌘⇧G` (`Cmd+Shift+G`), others: `Alt+Shift+G` |
+| `shortcut` | `string` | macOS: `⌘⇧G`（`Cmd+Shift+G`）, その他: `Alt+Shift+G` |
 | `activationMode` | `'toggle' \| 'hold'` | `'toggle'` |
 | `keyHoldDuration` | `number` | `180` |
 | `allowActivationInsideInput` | `boolean` | `false` |
@@ -116,13 +116,13 @@ registerPlugin({
 | `onCopySuccess` | `(result, content) => void` | - |
 | `onCopyError` | `(error, result) => void` | - |
 
-## Notes
+## 注意点
 
-- Development mode only (uses Vue internals such as `__vueParentComponent`)
-- Vue 3.x required
-- Vite is recommended for better source path metadata
+- 開発モード専用（`__vueParentComponent` などの Vue 内部情報に依存）
+- Vue 3.x 必須
+- ファイルパス精度のため Vite 推奨
 
-## Development
+## 開発
 
 ```bash
 npm install
@@ -130,6 +130,6 @@ npm run dev
 npm run build
 ```
 
-## License
+## ライセンス
 
 MIT
