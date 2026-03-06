@@ -10,7 +10,7 @@ Vueアプリ上で要素を指して、AIに渡すコンポーネント文脈を
 ## インストール
 
 ```bash
-npm install vue-grab
+npm install -D vue-grab
 ```
 
 ## 30秒導入（推奨）

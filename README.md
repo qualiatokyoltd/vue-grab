@@ -10,7 +10,7 @@ Point at any element and grab its Vue component context (component tree, file pa
 ## Install
 
 ```bash
-npm install vue-grab
+npm install -D vue-grab
 ```
 
 ## 30-Second Setup (Recommended)
