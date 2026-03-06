@@ -4,14 +4,21 @@ Select context for coding agents directly from your Vue app.
 
 Point at any element and grab its Vue component context (component tree, file path, props, HTML text) for ChatGPT / Claude / Copilot.
 
+Inspired by [react-grab](https://github.com/aidenybai/react-grab). Thank you ♡
+
 - English: this file
 - Japanese: [README.ja.md](./README.ja.md)
 
 ## Install
 
+This repository is not published as this package on npm yet.
+Install from GitHub:
+
 ```bash
-npm install vue-grab
+npm install -D github:qualiatokyoltd/vue-grab
 ```
+
+`prepare` runs automatically for GitHub installs, so `dist/` is built during installation.
 
 ## 30-Second Setup (Recommended)
 

@@ -4,14 +4,21 @@ Vueアプリ上で要素を指して、AIに渡すコンポーネント文脈を
 
 クリックした要素から Vue のコンポーネントツリー・ファイルパス・Props・テキスト情報を抽出し、ChatGPT / Claude / Copilot に貼れる形式でコピーします。
 
+Inspired by [react-grab](https://github.com/aidenybai/react-grab). Thank you ♡
+
 - 日本語: このファイル
 - English: [README.md](./README.md)
 
 ## インストール
 
+このリポジトリは、現時点で npm にこのパッケージ名では公開していません。
+GitHub から直接インストールしてください。
+
 ```bash
-npm install vue-grab
+npm install -D github:qualiatokyoltd/vue-grab
 ```
+
+GitHub からのインストール時は `prepare` が自動実行されるため、`dist/` はインストール時にビルドされます。
 
 ## 30秒導入（推奨）
 
