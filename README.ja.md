@@ -11,8 +11,11 @@ Inspired by [react-grab](https://github.com/aidenybai/react-grab). Thank you ♡
 
 ## インストール
 
+このリポジトリは、現時点で npm にこのパッケージ名では公開していません。
+GitHub から直接インストールしてください。
+
 ```bash
-npm install -D vue-grab
+npm install -D github:qualiatokyoltd/vue-grab
 ```
 
 ## 30秒導入（推奨）
