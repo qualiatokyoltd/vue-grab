@@ -2,49 +2,58 @@
 
 **Click any element in your Vue app → get component info → ask AI to change it.**
 
-The Vue 3 equivalent of [react-grab](https://github.com/nicholasgriffintn/react-grab). Hover over any element, click it, and get a formatted prompt with the component name, file path, props, and full component tree — ready to paste into Claude, ChatGPT, or any AI assistant.
+Vue 3 版の [react-grab](https://github.com/aidenybai/react-grab)。ブラウザ上の任意の要素をクリックするだけで、コンポーネント名・ファイルパス・Props・コンポーネントツリーをフォーマット済みプロンプトとして取得し、Claude や ChatGPT などの AI アシスタントにそのまま貼り付けられます。
 
-## How It Works
+## 動作イメージ
 
-1. Press **Alt+Shift+G** (or call `activate()`) to enter grab mode
-2. Hover over any element — a green overlay shows the component info
-3. Click to grab — component details are copied to your clipboard
-4. Paste into your AI assistant: _"Change this button's color to red"_
-5. The AI knows exactly which file and component to edit
+1. **Alt+Shift+G** を押す（またはプログラムから `activate()` を呼ぶ）
+2. 要素にホバー → 緑色のオーバーレイにコンポーネント情報が表示される
+3. クリック → コンポーネント詳細がクリップボードにコピーされる
+4. AI に貼り付けて指示：_「このボタンの色を赤に変えて」_
+5. AI は編集すべきファイルとコンポーネントを正確に把握できる
 
-Under the hood, vue-grab uses Vue 3's internal `__vueParentComponent` property (available in development mode) to walk up the component tree and extract:
-
-- **Component name** (`instance.type.name` / `__name`)
-- **File path** (`instance.type.__file` — injected by Vite)
-- **Line number** (`vnode.loc.start.line`)
-- **Props** (`instance.props`)
-
-## Install
+## インストール
 
 ```bash
 npm install vue-grab
 ```
 
-## Quick Start
+```bash
+yarn add vue-grab
+```
 
-### Plugin (recommended)
+```bash
+pnpm add vue-grab
+```
+
+> **Note:** vue-grab は開発専用ツールです。Vue 3 の開発モード内部 API（`__vueParentComponent`）に依存しており、プロダクションビルドでは動作しません。
+
+## クイックスタート
+
+### 方法 1: Vue プラグイン（推奨）
+
+最もシンプルな導入方法です。`app.use()` で登録するだけで、キーボードショートカットやグローバルプロパティが自動設定されます。
 
 ```ts
+// main.ts
 import { createApp } from 'vue'
 import { VueGrab } from 'vue-grab'
 import App from './App.vue'
 
 const app = createApp(App)
 
-// Development only — automatically tree-shaken in production
-app.use(VueGrab)
+if (import.meta.env.DEV) {
+  app.use(VueGrab)
+}
 
 app.mount('#app')
 ```
 
-Then press **Alt+Shift+G** to toggle grab mode.
+**Alt+Shift+G** を押すとグラブモードがトグルされます。
 
-### Composable
+### 方法 2: Composable API
+
+コンポーネント単位でグラブ機能を使いたい場合に便利です。リアクティブな状態管理と、コンポーネントのアンマウント時の自動クリーンアップが組み込まれています。
 
 ```vue
 <script setup>
@@ -52,26 +61,27 @@ import { useVueGrab } from 'vue-grab/composable'
 
 const { toggle, isActive, lastResult } = useVueGrab({
   onGrab(result) {
-    console.log(result.prompt)    // formatted markdown
-    console.log(result.components) // component tree array
+    console.log(result.prompt)     // フォーマット済み Markdown
+    console.log(result.components) // コンポーネントツリー配列
   },
 })
 </script>
 
 <template>
   <button @click="toggle">
-    {{ isActive ? 'Cancel' : 'Grab' }}
+    {{ isActive ? 'キャンセル' : 'グラブ' }}
   </button>
   <pre v-if="lastResult">{{ lastResult.prompt }}</pre>
 </template>
 ```
 
-### Programmatic
+### 方法 3: プログラマティック API
+
+フレームワークの外から直接制御したい場合や、独自の UI から呼び出したい場合に使います。
 
 ```ts
 import { activate, deactivate, toggle } from 'vue-grab'
 
-// Activate with options
 activate({
   autoCopy: true,
   onGrab(result) {
@@ -80,59 +90,155 @@ activate({
 })
 ```
 
-## Options
+## オプション
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `shortcut` | `string` | `'Alt+Shift+G'` | Keyboard shortcut to toggle grab mode |
-| `onGrab` | `(result: GrabResult) => void` | — | Callback when an element is grabbed |
-| `autoCopy` | `boolean` | `true` | Auto-copy prompt to clipboard |
-| `showOverlay` | `boolean` | `true` | Show the highlight overlay UI |
+| オプション | 型 | デフォルト | 説明 |
+|-----------|------|---------|------|
+| `shortcut` | `string` | `'Alt+Shift+G'` | グラブモードをトグルするキーボードショートカット |
+| `onGrab` | `(result: GrabResult) => void` | — | 要素がグラブされた時のコールバック |
+| `autoCopy` | `boolean` | `true` | プロンプトを自動でクリップボードにコピー |
+| `showOverlay` | `boolean` | `true` | ハイライトオーバーレイ UI を表示 |
 
-## GrabResult
+### ショートカットの書式
+
+修飾キーは `+` で連結します。大文字小文字は区別しません。
+
+```ts
+app.use(VueGrab, { shortcut: 'Ctrl+G' })         // Ctrl + G
+app.use(VueGrab, { shortcut: 'Meta+Shift+G' })    // Cmd + Shift + G (macOS)
+app.use(VueGrab, { shortcut: 'Alt+G' })            // Alt + G
+```
+
+対応する修飾キー: `Alt`, `Shift`, `Ctrl` (`Control`), `Meta` (`Cmd`, `Command`)
+
+## 型定義
+
+### GrabResult
 
 ```ts
 interface GrabResult {
-  element: HTMLElement          // The clicked DOM element
-  components: ComponentInfo[]   // Component tree (nearest → root)
-  prompt: string               // Formatted markdown prompt
-}
-
-interface ComponentInfo {
-  name: string                  // Component name
-  filePath: string | null       // Source file path
-  line: number | null           // Source line number
-  props: Record<string, unknown> // Component props
+  /** クリックされた DOM 要素 */
+  element: HTMLElement
+  /** コンポーネントツリー（最も近い → ルート） */
+  components: ComponentInfo[]
+  /** AI 向けフォーマット済み Markdown プロンプト */
+  prompt: string
 }
 ```
 
-## File Structure
+### ComponentInfo
 
-| File | Role |
-|------|------|
-| `src/core.ts` | Framework-agnostic core: tree walking, overlay, prompt formatting |
-| `src/index.ts` | Vue 3 plugin (`app.use(VueGrab)`) |
-| `src/composable.ts` | `useVueGrab()` composable for component-level use |
+```ts
+interface ComponentInfo {
+  /** コンポーネント名 */
+  name: string
+  /** ソースファイルパス（Vite が __file として注入） */
+  filePath: string | null
+  /** ソース行番号 */
+  line: number | null
+  /** コンポーネントの Props */
+  props: Record<string, unknown>
+}
+```
 
-## Development
+### GrabOptions
+
+```ts
+interface GrabOptions {
+  shortcut?: string
+  onGrab?: (result: GrabResult) => void
+  autoCopy?: boolean
+  showOverlay?: boolean
+}
+```
+
+### UseVueGrabReturn
+
+```ts
+interface UseVueGrabReturn {
+  activate: () => void
+  deactivate: () => void
+  toggle: () => void
+  isActive: Ref<boolean>
+  lastResult: Ref<GrabResult | null>
+}
+```
+
+## プラグインが提供するもの
+
+`app.use(VueGrab)` を実行すると、以下が自動的に登録されます:
+
+### globalProperties
+
+テンプレート内から `$vueGrab` でアクセスできます:
+
+```vue
+<template>
+  <button @click="$vueGrab.toggle()">Grab</button>
+</template>
+```
+
+### provide / inject
+
+Composition API で `inject('vue-grab')` から取得できます:
+
+```ts
+const vueGrab = inject('vue-grab')
+vueGrab.activate()
+```
+
+## 出力例
+
+グラブ結果の `prompt` フィールドには以下のような Markdown が含まれます:
+
+```markdown
+## Vue Component Info (grabbed with vue-grab)
+
+**Element:** `<button>`
+**Classes:** `primary`
+**Text:** "Submit"
+
+### Component Tree (nearest → root)
+
+1. **`<ActionBar>`**
+   File: `src/components/ActionBar.vue:15`
+   Props: onSubmit
+  2. **`<Dashboard>`**
+     File: `src/views/Dashboard.vue:42`
+    3. **`<App>`**
+       File: `src/App.vue`
+
+---
+Please modify the component above. Describe what you want to change:
+```
+
+## 既存プロジェクトへの導入ガイド
+
+詳細なフレームワーク別の導入手順は [INTEGRATION.md](./INTEGRATION.md) を参照してください。
+
+## アーキテクチャ
+
+内部設計の詳細は [ARCHITECTURE.md](./ARCHITECTURE.md) を参照してください。
+
+## 動作要件
+
+- **Vue 3.x**（開発モードの内部 API を使用）
+- **開発モード限定** — `__vueParentComponent` はプロダクションビルドには含まれません
+- **Vite** との組み合わせ推奨（`__file` パスの注入のため）
+
+## 開発
 
 ```bash
-# Install dependencies
+# 依存関係のインストール
 npm install
 
-# Run the demo
-npx vite
+# デモの起動（index.html を Vite dev server で配信）
+npm run dev
 
-# Build the library
+# ライブラリのビルド
 npm run build
 ```
 
-## Requirements
-
-- **Vue 3.x** (uses internal development-mode APIs)
-- **Development mode only** — `__vueParentComponent` is not available in production builds
-- Works best with **Vite** (for `__file` path injection)
-
-## License
+## ライセンス
 
 MIT
